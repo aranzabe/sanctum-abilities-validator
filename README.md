@@ -247,7 +247,8 @@ class AuthController extends Controller
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
             $auth = Auth::user();
             // return $auth;
-            $tokenResult = $auth->createToken('LaravelSanctumAuth');
+            //$tokenResult = $auth->createToken('LaravelSanctumAuth');
+            $tokenResult = $auth->createToken('LaravelSanctumAuth', ['read', 'delete','mindundi']);
 
             // Actualizar expiración
             // $hours = (int) env('SANCTUM_EXPIRATION_HOURS', 2);
@@ -291,6 +292,7 @@ class AuthController extends Controller
             'token' => $user->createToken('LaravelSanctumAuth')->plainTextToken,
             'expires_at' => $tokenResult->accessToken->expires_at ==null ? null:  $tokenResult->accessToken->expires_at->toDateTimeString()
         ];
+
 
         return response()->json(["success"=>true,"data"=>$success, "message" => "User successfully registered!"]);
     }
