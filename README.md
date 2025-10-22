@@ -176,29 +176,33 @@ class ParteController extends Controller
         return response()->json($partes,200);
     }
 
+
     public function store(Request $request)
     {
         $input = $request->all();
         $parte = Parte::create($input);
-        return response()->json(["success"=>true,"data"=>$parte, "message" => "Created"]);
+        return response()->json(["success"=>true,"data"=>$parte, "message" => "Created"],201);
     }
+
 
     public function show($id)
     {
         $parte = Parte::find($id);
         if (is_null($parte)) {
-            return response()->json("Parte no encontrado",202);
+            return response()->json("Parte no encontrado",404);
         }
         return response()->json(["success"=>true,"data"=>$parte, "message" => "Retrieved"]);
     }
+
 
     public function update($id, Request $request)
     {
         $input = $request->all();
 
+
         $parte = Parte::find($id);
         if (is_null($parte)) {
-            return response()->json(["success"=>false, "message" => "Not found"]);
+            return response()->json(["success"=>false, "message" => "Not found"],404);
         }
         else {
             $parte->nombre = $input['nombre'];
@@ -213,11 +217,11 @@ class ParteController extends Controller
     {
         $parte = Parte::find($id);
         if (is_null($parte)) {
-            return response()->json(["success"=>false, "message" => "Not found"]);
+            return response()->json(["success"=>false, "message" => "Not found"],404);
         }
         else {
             $parte->delete();
-            return response()->json(["success"=>true,"data"=>$parte, "message" => "Deleted"],202);
+            return response()->json(["success"=>true,"data"=>$parte, "message" => "Deleted"],200);
         }
     }
 }
