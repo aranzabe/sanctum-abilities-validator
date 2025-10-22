@@ -55,7 +55,7 @@ class AuthController extends Controller
         $success = [
             'id' => $user->id,
             'name' => $user->name,
-            'token' => $user->createToken('LaravelSanctumAuth')->plainTextToken,
+            'token' => $tokenResult->plainTextToken,
             'expires_at' => $tokenResult->accessToken->expires_at ==null ? null:  $tokenResult->accessToken->expires_at->toDateTimeString()
         ];
 
