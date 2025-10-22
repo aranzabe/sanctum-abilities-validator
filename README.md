@@ -1,5 +1,25 @@
-# Laravel: sanctum abilities validator
-# Sanctum
+
+## 🧭 Índice
+
+- [1. Tokens personales de Laravel](#1-tokens-personales-de-laravel)
+- [2. Pasos básicos para configurar Sanctum en Laravel (protegiendo rutas)](#2-pasos-básicos-para-configurar-sanctum-en-laravel-protegiendo-rutas)
+  - [Instalación y migración](#instalación-y-migración)
+  - [Realizamos las migraciones](#realizamos-las-migraciones)
+  - [Controladores y código para la API](#controladores-y-código-para-la-api)
+  - [Controlador Auth](#controlador-auth)
+    - [Método login(request request)](#método-loginrequest-request)
+    - [Método register(request request)](#método-registerrequest-request)
+    - [Método logout(request request)](#método-logoutrequest-request)
+  - [Expiración del token](#expiración-del-token)
+  - [Creación de rutas y protección](#creación-de-rutas-y-protección)
+- [3. Abilities](#3-abilities)
+  - [¿Qué son las “abilities” en Sanctum?](#qué-son-las-abilities-en-sanctum)
+- [4. Validator](#4-validator)
+  - [¿Qué es el Validator en Laravel?](#qué-es-el-validator-en-laravel)
+  - [Formas de usar el Validator](#formas-de-usar-el-validator)
+    - [1. Con el método validate() en el controlador](#1-con-el-método-validate-en-el-controlador)
+    - [2. Con el facade Validator](#2-con-el-facade-validator)
+
 
 # 1. Tokens personales de Laravel
 
@@ -176,14 +196,12 @@ class ParteController extends Controller
         return response()->json($partes,200);
     }
 
-
     public function store(Request $request)
     {
         $input = $request->all();
         $parte = Parte::create($input);
         return response()->json(["success"=>true,"data"=>$parte, "message" => "Created"],201);
     }
-
 
     public function show($id)
     {
@@ -194,11 +212,9 @@ class ParteController extends Controller
         return response()->json(["success"=>true,"data"=>$parte, "message" => "Retrieved"]);
     }
 
-
     public function update($id, Request $request)
     {
         $input = $request->all();
-
 
         $parte = Parte::find($id);
         if (is_null($parte)) {
@@ -247,8 +263,7 @@ class AuthController extends Controller
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
             $auth = Auth::user();
             // return $auth;
-            //$tokenResult = $auth->createToken('LaravelSanctumAuth');
-            $tokenResult = $auth->createToken('LaravelSanctumAuth', ['read', 'delete','mindundi']);
+            $tokenResult = $auth->createToken('LaravelSanctumAuth');
 
             // Actualizar expiración
             // $hours = (int) env('SANCTUM_EXPIRATION_HOURS', 2);
@@ -271,7 +286,7 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-	    $us = User::where('email',$request->email)->first();
+        $us = User::where('email',$request->email)->first();
         if(!empty($us->email)) {
             return response()->json(["success"=>false, "message" => "Already registered user"]);
         }
@@ -292,7 +307,6 @@ class AuthController extends Controller
             'token' => $user->createToken('LaravelSanctumAuth')->plainTextToken,
             'expires_at' => $tokenResult->accessToken->expires_at ==null ? null:  $tokenResult->accessToken->expires_at->toDateTimeString()
         ];
-
 
         return response()->json(["success"=>true,"data"=>$success, "message" => "User successfully registered!"]);
     }
@@ -547,4 +561,326 @@ Route::get('/nologin', function () {
     return response()->json(["success"=>false, "message" => "Unauthorised"],203);
 });
 
+```
+
+# 3. Abilities
+
+## ¿Qué son las “abilities” en Sanctum?
+
+- Cuando usas Sanctum para emitir *tokens de acceso personal* (personal access tokens), puedes asignar a cada token un conjunto de permisos — llamadas *abilities*. [DEV Community+3jetstream.laravel.com+3freek.dev+3](https://jetstream.laravel.com/features/api.html?utm_source=chatgpt.com)
+- Estas abilities permiten restringir **qué acciones puede realizar ese token**. En vez de “el usuario puede hacer todo”, puedes decir “este token sólo puede leer posts”, o “este otro token puede crear y borrar posts”. [Redberry International+1](https://redberry.international/laravel-sanctum-easy-authentication/?utm_source=chatgpt.com)
+- No confundir con roles complejos (aunque se puede usar para ello): es más liviano, diseñado para controlar el acceso de tokens. [Amezmo+1](https://www.amezmo.com/laravel-hosting-guides/role-based-api-authentication-with-laravel-sanctum?utm_source=chatgpt.com)
+
+¿Cómo se usan? – Flujo básico
+
+Se añaden al token cuando se crean:
+
+```php
+$tokenResult = $auth->createToken('LaravelSanctumAuth', ['read', 'delete','mindundi']);
+```
+
+Se protegen usando un middleware para la ruta:
+
+```php
+Route::get('parte/{id}', [ParteController::class,'show'])
+     ->middleware(['midread','midmindundi']);
+```
+
+Siendo estos middlewares:
+
+```php
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class MidRead
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $user = $request->user();
+        if ($user->tokenCan("read")) {
+           return $next($request);
+        }
+        else {
+            return response()->json(["success"=>false, "message" => "No autorizado"],202);
+        }
+    }
+}
+```
+
+Y:
+
+```php
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class MidMindundi
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $user = $request->user();
+        if ($user->tokenCan("mindundi")) {
+           return $next($request);
+        }
+        else {
+            return response()->json(["success"=>false, "message" => "No autorizado"],202);
+        }
+    }
+}
+```
+
+Registrando los middleware en bootstrap/app:
+
+```php
+use App\Http\Middleware\MidAdmin;
+use App\Http\Middleware\MidDelete;
+use App\Http\Middleware\MidMindundi;
+use App\Http\Middleware\MidRead;
+use App\Http\Middleware\MidUpdate;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\JsonResponse;
+use Laravel\Sanctum\Exceptions\MissingAbilityException;
+use Laravel\Sanctum\Http\Middleware\CheckAbilities;
+use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__ . '/../routes/web.php',
+        api: __DIR__ . '/../routes/api.php',
+        commands: __DIR__ . '/../routes/console.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->alias([
+            'todas' => CheckAbilities::class,
+            'alguna' => CheckForAnyAbility::class,
+            'mid1' => Mid1::class,
+            'midread' => MidRead::class,
+            'midupdate' => MidUpdate::class,
+            'middelete' => MidDelete::class,
+            'midadmin' => MidAdmin::class,
+            'midmindundi' => MidMindundi::class,
+        ]);
+
+        // Redirección de usuarios no autenticados (solo para rutas web)
+        $middleware->redirectGuestsTo('/api/nologin');
+    })
+    ->withExceptions(function (\Illuminate\Foundation\Configuration\Exceptions $exceptions): void {
+        // Manejo personalizado de excepciones para respuestas JSON en rutas API
+    })->create();
+```
+
+Podemos observar que existen los casos de ‘todas’ o ‘alguna’ que se pasarían así en las rutas:
+
+```php
+    Route::get('partes', [ParteController::class,'index'])
+    //->middleware('alguna:read,update');
+    ->middleware('todas:read,update');
+```
+
+Harían justo eso, pasan el middleware si el token tiene alguno o todos los permisos asignados.
+
+# 4. Validator
+
+## 🧩 ¿Qué es el *Validator* en Laravel?
+
+El *Validator* es el **sistema de validación de datos** que usa Laravel para asegurarse de que los datos enviados (por formularios, peticiones API, etc.) cumplan ciertas reglas antes de procesarlos.
+
+👉 Se encuentra en la clase `Illuminate\Support\Facades\Validator`.
+
+## 🧠 Formas de usar el *Validator*
+
+Laravel permite validar de **tres maneras principales**:
+
+### 1. Con el método `validate()` en el controlador
+
+La forma más simple (Laravel hace todo por ti):
+
+```php
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users',
+        'age' => 'nullable|integer|min:18',
+    ]);
+
+    // Si pasa la validación, continúa
+    User::create($validated);
+}
+```
+
+🔹 Si la validación falla, Laravel redirige automáticamente (en web) o devuelve errores en JSON (en API).
+
+---
+
+### 2. Con el *facade* `Validator`
+
+Permite más control manual (útil en APIs o validaciones complejas):
+
+```php
+use Illuminate\Support\Facades\Validator;
+
+public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'title' => 'required|min:5',
+        'content' => 'required',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    Post::create($validator->validated());
+}
+```
+
+🔹 Puedes usar `$validator->fails()`, `$validator->errors()` y `$validator->validated()`.
+
+🧾 Reglas de validación más comunes
+
+| Regla | Descripción |
+| --- | --- |
+| `required` | El campo es obligatorio |
+| `string`, `integer`, `numeric`, `boolean`, `array` | Tipo de dato |
+| `min:value`, `max:value` | Longitud o valor mínimo/máximo |
+| `email`, `url`, `date` | Formato específico |
+| `unique:table,column` | Debe ser único en la tabla |
+| `exists:table,column` | Debe existir en la tabla |
+| `confirmed` | Necesita otro campo igual (por ejemplo `password_confirmation`) |
+| `nullable` | Campo puede ser nulo |
+| `sometimes` | Solo valida si el campo está presente |
+| `in:a,b,c` / `not_in:x,y,z` | Valores permitidos o no permitidos |
+| `regex:/pattern/` | Usa una expresión regular |
+| `after:today`, `before_or_equal:now` | Fechas relativas |
+
+🧩 Validación de arrays y objetos anidados
+
+```php
+$request->validate([
+    'users' => 'required|array',
+    'users.*.name' => 'required|string',
+    'users.*.email' => 'required|email',
+]);
+
+```
+
+🔹 `*` significa “para cada elemento del array”.
+
+⚙️ Mensajes personalizados
+
+```php
+$request->validate([
+    'email' => 'required|email'
+], [
+    'email.required' => 'El correo es obligatorio',
+    'email.email' => 'Debe ser un correo válido',
+]);
+```
+
+También puedes definirlos globalmente en `resources/lang/es/validation.php`.
+
+🧰 Métodos útiles del objeto `Validator`
+
+| Método | Descripción |
+| --- | --- |
+| `$validator->fails()` | Retorna `true` si falla |
+| `$validator->passes()` | Retorna `true` si pasa |
+| `$validator->errors()` | Retorna errores |
+| `$validator->validated()` | Devuelve solo los datos válidos |
+| `$validator->setData($data)` | Cambia los datos a validar |
+| `$validator->sometimes($field, $rules, $callback)` | Agrega reglas condicionales |
+
+En el ejemplo de clase, podemos poner las reglas siguiente, en Auth:
+
+```php
+public function register(Request $request)
+    {
+        // $us = User::where('email',$request->email)->first();
+        // if(!empty($us->email)) {
+        //     return response()->json(["success"=>false, "message" => "Already registered user"]);
+        // }
+        $input = $request->all();
+        $rules = [
+            'name' => 'required|string|max:20',
+            'email' => 'required|email|max:255|unique:users',
+            'password' => 'required|min:8',
+            'confirm_password' => 'required|same:password',
+            'edad' => 'required|integer|between:18,190'
+        ];
+        $messages = [
+            'unique' => 'El :attribute ya está registrado en la base de datos.',
+            'email' => 'El campo :attribute debe ser un correo electrónico válido.',
+            'same' => 'El campo :attribute y :other deben coincidir.',
+            'max' => 'El campo :attribute no debe exceder el tamaño máximo permitido.',
+            'between' => 'El campo :attribute debe estar entre :min y :max años.',
+            'integer' => 'El campo :attribute debe ser un número entero.',
+            'required' => 'El campo :attribute es obligatorio.'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if($validator->fails()){
+            return response()->json($validator->errors(),422);
+        }
+
+        $input['password'] = bcrypt($input['password']);
+        $user = User::create($input);
+        // $success['token'] =  $user->createToken('LaravelSanctumAuth')->plainTextToken;
+        // $success['name'] =  $user->name;
+        $success = [
+            'token' => $user->createToken('LaravelSanctumAuth')->plainTextToken,
+            'name' => $user->name,
+            'id' => $user->id
+        ];
+
+        return response()->json(["success"=>true,"data"=>$success, "message" => "User successfully registered!"]);
+    }
+```
+
+Y en partes:
+
+```php
+    public function store(Request $request)
+    {
+        $input = $request->all();
+
+        $rules = [
+            'nombre' => 'required|string|max:255',
+            'causa' => 'required|in:Nada,Todo,"Me tiene mania"',
+            'gravedad' => 'required|in:Leve,Destierro,"Pasar por la quilla"',
+            // 'observaciones' => 'required|string|max:255'
+        ];
+        $messages = [
+            'required' => 'El campo :attribute es obligatorio.',
+            'in' => 'El campo :attribute debe ser uno de los siguientes valores: :values.'
+        ];
+
+        $validator = Validator::make($input, $rules, $messages);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+        $parte = Parte::create($input);
+        return response()->json(["success"=>true,"data"=>$parte, "message" => "Created"]);
+    }
 ```
