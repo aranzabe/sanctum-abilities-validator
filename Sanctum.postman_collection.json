@@ -14,7 +14,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "10|PlOzVdTqEIOujxXrBq7KwHu2PxsfPluwNI1y1EiW20d1fb72",
+							"value": "46|94zMAeJ8fDLNfXpinqNaVoxzAAGxBDGISDyGskNS8d12c2cf",
 							"type": "string"
 						}
 					]
@@ -46,7 +46,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "11|lhrWej9Ob0N1vhNxtQ52RmZ0GFoUAatOeJPUlT667fe7701e",
+							"value": "45|5uPVOqWk6rYQladLsV679QeqLqDaHc1wfHcgyLF06e6b9166",
 							"type": "string"
 						}
 					]
@@ -54,7 +54,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "127.0.0.1:8000/api/parte/1",
+					"raw": "127.0.0.1:8000/api/parte/2",
 					"host": [
 						"127",
 						"0",
@@ -65,7 +65,7 @@
 					"path": [
 						"api",
 						"parte",
-						"1"
+						"2"
 					]
 				}
 			},
@@ -79,7 +79,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "11|lhrWej9Ob0N1vhNxtQ52RmZ0GFoUAatOeJPUlT667fe7701e",
+							"value": "45|5uPVOqWk6rYQladLsV679QeqLqDaHc1wfHcgyLF06e6b9166",
 							"type": "string"
 						}
 					]
@@ -88,7 +88,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"nombre\":\"Ian\",\n    \"causa\":\"Porque sí\",\n    \"gravedad\":\"Para pasar por la quilla\"\n}",
+					"raw": "{\n    \"nombre\":\"Juan\",\n    \"causa\":\"Nada\",\n    \"gravedad\":\"Destierro\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -120,7 +120,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "1|X5lQ3rRfKtDGNsCCJXXuotJGQZyra1RRIBKL5DkN269f7203",
+							"value": "45|5uPVOqWk6rYQladLsV679QeqLqDaHc1wfHcgyLF06e6b9166",
 							"type": "string"
 						}
 					]
@@ -129,7 +129,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"nombre\":\"Daniel\",\n    \"causa\":\"Porque no\",\n    \"gravedad\":\"Para pasar por la quilla\"\n}",
+					"raw": "{\n    \"nombre\":\"Marta\",\n    \"causa\":\"Porque no\",\n    \"gravedad\":\"Para pasar por la quilla\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -162,7 +162,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "1|X5lQ3rRfKtDGNsCCJXXuotJGQZyra1RRIBKL5DkN269f7203",
+							"value": "45|5uPVOqWk6rYQladLsV679QeqLqDaHc1wfHcgyLF06e6b9166",
 							"type": "string"
 						}
 					]
@@ -203,7 +203,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\":\"Fernando\",\n    \"email\":\"faranzabe@cifpvirgendegracia.com\",\n    \"password\":\"Chubaca2025\",\n    \"confirm_password\":\"Chubaca2025\",\n    \"edad\":18\n}",
+					"raw": "{\n    \"name\":\"Cristina\",\n    \"email\":\"cristina@cifpvirgendegracia.com\",\n    \"password\":\"Chubaca2025\",\n    \"confirm_password\":\"Chubaca2025\",\n    \"edad\":18\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -234,7 +234,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"faranzabe2@cifpvirgendegracia.com\",\n    \"password\":\"Chubaca2025\"\n}",
+					"raw": "{\n    \"email\":\"cristina@cifpvirgendegracia.com\",\n    \"password\":\"Chubaca2025\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -265,7 +265,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\":\"Fernando\",\n    \"email\":\"faranzabe2@cifpvirgendegracia.com\",\n    \"password\":\"Chubaca2025\"\n}",
+					"raw": "{\n    \"name\":\"Fernando\",\n    \"email\":\"jesus@cifpvirgendegracia.com\",\n    \"password\":\"Chubaca2025\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

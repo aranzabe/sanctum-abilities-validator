@@ -567,9 +567,9 @@ Route::get('/nologin', function () {
 
 ## ¿Qué son las “abilities” en Sanctum?
 
-- Cuando usas Sanctum para emitir *tokens de acceso personal* (personal access tokens), puedes asignar a cada token un conjunto de permisos — llamadas *abilities*. [DEV Community+3jetstream.laravel.com+3freek.dev+3](https://jetstream.laravel.com/features/api.html?utm_source=chatgpt.com)
-- Estas abilities permiten restringir **qué acciones puede realizar ese token**. En vez de “el usuario puede hacer todo”, puedes decir “este token sólo puede leer posts”, o “este otro token puede crear y borrar posts”. [Redberry International+1](https://redberry.international/laravel-sanctum-easy-authentication/?utm_source=chatgpt.com)
-- No confundir con roles complejos (aunque se puede usar para ello): es más liviano, diseñado para controlar el acceso de tokens. [Amezmo+1](https://www.amezmo.com/laravel-hosting-guides/role-based-api-authentication-with-laravel-sanctum?utm_source=chatgpt.com)
+- Cuando usas Sanctum para emitir *tokens de acceso personal* (personal access tokens), puedes asignar a cada token un conjunto de permisos — llamadas *abilities*. 
+- Estas abilities permiten restringir **qué acciones puede realizar ese token**. En vez de “el usuario puede hacer todo”, puedes decir “este token sólo puede leer posts”, o “este otro token puede crear y borrar posts”. 
+- No confundir con roles complejos (aunque se puede usar para ello): es más liviano, diseñado para controlar el acceso de tokens.
 
 ¿Cómo se usan? – Flujo básico
 
